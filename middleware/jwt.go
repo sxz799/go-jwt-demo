@@ -15,17 +15,15 @@ type Claims struct {
 }
 
 func GenToken(u string) (accessTokenStr, refreshTokenStr string, err error) {
-	// Create the JWT claims, which includes the username and expiry time
+	// 创建jwt accessClaims 设置过期时间15s
 	accessClaims := &Claims{
 		Username: u,
 		RegisteredClaims: jwt.RegisteredClaims{
-			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Second)),
 		},
 	}
 	refreshClaims := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Second)),
 		},
 	}
@@ -34,7 +32,7 @@ func GenToken(u string) (accessTokenStr, refreshTokenStr string, err error) {
 	accessTokenStr, err = accessToken.SignedString(JwtKey)
 	refreshTokenStr, err = refreshToken.SignedString(JwtKey)
 	if err != nil {
-		// If there is an error in creating the JWT return an internal server error
+		// 创建Token失败
 		return "", "", err
 	}
 	return accessTokenStr, refreshTokenStr, nil
@@ -42,16 +40,14 @@ func GenToken(u string) (accessTokenStr, refreshTokenStr string, err error) {
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		accessTokenStr, err := c.Cookie("access-token")
 		if err != nil {
-			// If there is an error in creating the JWT return an internal server error
+			// 获取access-token失败
 			c.String(200, "获取token失败")
 			c.Abort()
 			return
 		}
 
-		// Initialize a new instance of `Claims`
 		accessClaims := &Claims{}
 		refreshClaims := &Claims{}
 		accessToken, err := jwt.ParseWithClaims(accessTokenStr, accessClaims, func(token *jwt.Token) (interface{}, error) {

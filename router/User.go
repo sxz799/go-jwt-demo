@@ -40,8 +40,6 @@ func logout(c *gin.Context) {
 
 func index(c *gin.Context) {
 
-	// Finally, return the welcome message to the user, along with their
-	// username given in the token
 	value, exists := c.Get("accessClaims")
 	if exists {
 		claims := value.(*middleware.Claims)
